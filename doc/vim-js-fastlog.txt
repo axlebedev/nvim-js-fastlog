@@ -1,0 +1,54 @@
+*vim-js-fastlog.txt*	For Vim 7.4	2017 January 16
+
+*js-fastlog*     Insert 'console.log()' expressions faster!
+
+==============================================================================
+CONTENTS                                         *js-fastlog-contents*
+
+    Introduction .....................................|js-fastlog-intro|
+    Usage ............................................|js-fastlog-usage|
+    Contributing .............................|js-fastlog-contributions|
+    Credits ........................................|js-fastlog-credits|
+    License ........................................|js-fastlog-license|
+
+==============================================================================
+INTRODUCTION                                        *js-fastlog-intro*
+
+Js-fastlog gives you ability to insert different `console.log()`
+statements fast and easily. It prefixes your console.log statements to
+make it easy filter logs in browser
+Examples show what you can do with 'someVar':
+  // show 'someVar'
+  console.log('<prefix>', someVar);
+  console.log('<prefix>', 'someVar');
+  console.log('<prefix>', 'someVar=', someVar);
+  console.log('<prefix>', 'someVar=' + JSON.stringify(someVar));
+  // show function call, or whatever else
+  console.log('<prefix>', Date.now() % 10000, '<filename>:<lineNum> someVar');
+  // good at React development
+  console.log('<prefix>', 'someVar: ', prevProps.someVar, ' => ', this.props.someVar);
+  console.log('<prefix>', 'someVar: ', this.props.someVar, ' => ', nextProps.someVar);
+  // separator, lineNumber, trace
+  console.log('<prefix>', ' ========================================');
+  console.log('<prefix>', '<filename>:<lineNum>');
+  console.trace();
+
+==============================================================================
+USAGE                                               *js-fastlog-usage*
+
+==============================================================================
+CONTRIBUTIONS                               *js-fastlog-contributions*
+
+Contributions and pull requests are welcome.
+
+==============================================================================
+CREDITS                                           *js-fastlog-credits*
+
+Copyright © 2017 Alex Lebedev. <alexey.broadcast@gmail.com>
+
+==============================================================================
+LICENSE                                           *js-fastlog-license*
+
+MIT License.
+
+ vim:tw=79:ts=8:ft=help:norl:

@@ -95,13 +95,14 @@ local function makeString(inner, wrapIntoTrace)
         .. inner
         .. ')'
 
-    result = result .. (vim.fn.search(';', 'n') > 0 and ';' or '')
+    local colon = vim.fn.search(';', 'n') > 0 and ';' or '';
+    result = result .. colon
     return result
 end
 
 local function jsFastLog(logmode, wrapIntoTrace)
+    local colon = vim.fn.search(';', 'n') > 0 and ';' or '';
     local word = getWord()
-    print('word=', word)
 
     local wordIsEmpty = not word:match('%S')
     if logmode ~= logModes.separator
@@ -110,7 +111,6 @@ local function jsFastLog(logmode, wrapIntoTrace)
          vim.cmd('normal aconsole.log();')
          vim.cmd('normal hh')
     else
-        print(124)
         local finalstring = makeString(makeInner(logmode, word), wrapIntoTrace)
 
         if logmode == logModes.funcTimestamp or logmode == logModes.separator then
@@ -122,11 +122,13 @@ local function jsFastLog(logmode, wrapIntoTrace)
         vim.cmd('normal! ==')
     end
 
-    -- if wrapIntoTrace then
-    --     vim.cmd('normal oconsole.trace()' .. (vim.fn.search(';', 'n') > 0 and ';' or ''))
-    --     vim.cmd('normal oconsole.groupEnd()' .. (vim.fn.search(';', 'n') > 0 and '; : '))
-    --     vim.cmd('normal kk')
-    -- end
+    if wrapIntoTrace ~= nil then
+        vim.cmd('undojoin')
+        vim.cmd('normal 2o')
+        local line = vim.fn.getcurpos()[2]
+        vim.api.nvim_buf_set_lines(0, line - 2, line, false, { 'console.trace()', 'console.groupEnd()' })
+        vim.cmd('normal =kk')
+    end
 
     -- move cursor to end of line -2 columns
     vim.cmd('normal $hh')
@@ -136,9 +138,9 @@ M.getLogModes = function()
     return logModes
 end
 
-local getFuncForMap = function(logMode)
-    local funcName = 'JsFastLog_' .. logMode
-    _G[funcName] = function() jsFastLog(logMode) end
+local getFuncForMap = function(logMode, wrapIntoTrace)
+    local funcName = 'JsFastLog_' .. logMode .. (wrapIntoTrace and '_trace' or '')
+    _G[funcName] = function() jsFastLog(logMode, wrapIntoTrace) end
     return function()
         vim.o.operatorfunc = 'v:lua._G.' .. funcName
         vim.api.nvim_feedkeys('g@', 'n', false)
@@ -149,33 +151,11 @@ M.JsFastLog_simple = getFuncForMap(logModes.simple)
 M.JsFastLog_JSONstringify = getFuncForMap(logModes.jsonStringify)
 M.JsFastLog_variable = getFuncForMap(logModes.showVar)
 M.JsFastLog_function = getFuncForMap(logModes.funcTimestamp)
-
--- M.JsFastLog_simple_trace = function(visualmode)
---     visualmode = visualmode or ''
---     jsFastLog(visualmode, logModes.simple, true)
--- end
---
--- M.JsFastLog_variable_trace = function(visualmode)
---     visualmode = visualmode or ''
---     jsFastLog(visualmode, logModes.showVar, true)
--- end
-
--- M.JsFastLog_string = function(visualmode)
---     visualmode = visualmode or ''
---     jsFastLog(visualmode, logModes.string)
--- end
---
--- M.JsFastLog_string_trace = function(visualmode)
---     visualmode = visualmode or ''
---     jsFastLog(visualmode, logModes.string, true)
--- end
---
--- M.JsFastLog_separator = function()
---     jsFastLog('', logModes.separator)
--- end
---
--- M.JsFastLog_lineNumber = function()
---     jsFastLog('', logModes.lineNumber)
--- end
+M.JsFastLog_string = getFuncForMap(logModes.string)
+M.JsFastLog_separator = function() jsFastLog(logModes.separator) end
+M.JsFastLog_lineNumber = function() jsFastLog(logModes.lineNumber) end
+M.JsFastLog_simple_trace = getFuncForMap(logModes.simple, true)
+M.JsFastLog_variable_trace = getFuncForMap(logModes.showVar, true)
+M.JsFastLog_string_trace = getFuncForMap(logModes.string, true)
 
 return M

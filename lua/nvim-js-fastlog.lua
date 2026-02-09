@@ -42,7 +42,7 @@ end
 local function makeInner(logmode, word)
     local inner = word
     local escapedWord = vim.fn.escape(word, "'")
-    local line = vim.api.nvim_get_current_line()
+    local line = vim.fn.getcurpos()[2]
 
     if logmode == logModes.string then -- string: 'var' => 'console.log('var');'
         return WQ(escapedWord)
@@ -112,16 +112,14 @@ local function jsFastLog(logmode, wrapIntoTrace)
     else
         print(124)
         local finalstring = makeString(makeInner(logmode, word), wrapIntoTrace)
-        vim.cmd('normal! 0d$i' .. finalstring)
-        vim.cmd('normal! ==')
 
-        -- if logmode == logModes.funcTimestamp
-        --     or logmode == logModes.separator then
-        --     vim.cmd('normal! ==f(l')
-        -- else
-        --     vim.cmd('.-delete _')
-        --     vim.cmd('normal! ==f(')
-        -- end
+        if logmode == logModes.funcTimestamp or logmode == logModes.separator then
+            vim.cmd('normal! o')
+        else
+            vim.cmd('normal! 0d$')
+        end
+        vim.cmd('normal! i' .. finalstring)
+        vim.cmd('normal! ==')
     end
 
     -- if wrapIntoTrace then
@@ -138,38 +136,30 @@ M.getLogModes = function()
     return logModes
 end
 
-local getFuncForMap = function(func, funcName)
-    _G[funcName] = func
+local getFuncForMap = function(logMode)
+    local funcName = 'JsFastLog_' .. logMode
+    _G[funcName] = function() jsFastLog(logMode) end
     return function()
         vim.o.operatorfunc = 'v:lua._G.' .. funcName
         vim.api.nvim_feedkeys('g@', 'n', false)
     end
 end
 
-M.JsFastLog_simple = getFuncForMap(function() jsFastLog(logModes.simple) end, 'JsFastLog_simple')
+M.JsFastLog_simple = getFuncForMap(logModes.simple)
+M.JsFastLog_JSONstringify = getFuncForMap(logModes.jsonStringify)
+M.JsFastLog_variable = getFuncForMap(logModes.showVar)
+M.JsFastLog_function = getFuncForMap(logModes.funcTimestamp)
 
 -- M.JsFastLog_simple_trace = function(visualmode)
 --     visualmode = visualmode or ''
 --     jsFastLog(visualmode, logModes.simple, true)
 -- end
 --
--- M.JsFastLog_JSONstringify = function(visualmode)
---     visualmode = visualmode or ''
---     jsFastLog(visualmode, logModes.jsonStringify)
--- end
-
-M.JsFastLog_variable = getFuncForMap(function() jsFastLog(logModes.showVar) end, 'JsFastLog_variable')
-
 -- M.JsFastLog_variable_trace = function(visualmode)
 --     visualmode = visualmode or ''
 --     jsFastLog(visualmode, logModes.showVar, true)
 -- end
---
--- M.JsFastLog_function = function(visualmode)
---     visualmode = visualmode or ''
---     jsFastLog(visualmode, logModes.funcTimestamp)
--- end
---
+
 -- M.JsFastLog_string = function(visualmode)
 --     visualmode = visualmode or ''
 --     jsFastLog(visualmode, logModes.string)

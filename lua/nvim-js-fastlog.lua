@@ -7,14 +7,14 @@ M.setup = function(opts)
 end
 
 local logModes = {
-    simple = 1,
-    jsonStringify = 2,
-    showVar = 3,
-    funcTimestamp = 4,
-    string = 5,
-    separator = 8,
-    lineNumber = 9,
-    traceCollapsed = 10,
+    simple = 'simple',
+    jsonStringify = 'jsonStringify',
+    showVar = 'showVar',
+    funcTimestamp = 'funcTimestamp',
+    string = 'string',
+    separator = 'separator',
+    lineNumber = 'lineNumber',
+    traceCollapsed = 'traceCollapsed',
 }
 
 local function getSelectionColumns()
@@ -158,7 +158,7 @@ M.JsFastLog_simple = getFuncForMap(function() jsFastLog(logModes.simple) end, 'J
 --     jsFastLog(visualmode, logModes.jsonStringify)
 -- end
 
-M.JsFastLog_variable = getFuncForMap(function() jsFastLog(visualmode, logModes.showVar) end, 'JsFastLog_variable')
+M.JsFastLog_variable = getFuncForMap(function() jsFastLog(logModes.showVar) end, 'JsFastLog_variable')
 
 -- M.JsFastLog_variable_trace = function(visualmode)
 --     visualmode = visualmode or ''

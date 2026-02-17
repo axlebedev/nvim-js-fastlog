@@ -3,7 +3,7 @@ local M = {}
 local js_fastlog_prefix = ''
 
 M.setup = function(opts)
-    s_fastlog_prefix = opts['js_fastlog_prefix'] or ''
+    js_fastlog_prefix = opts['js_fastlog_prefix'] or ''
 end
 
 local logModes = {

@@ -84,7 +84,7 @@ local function makeInner(logmode, word)
     return inner
 end
 
-local function makeString(inner, wrapIntoTrace) 
+local function makeString(inner, wrapIntoTrace)
     local filenameWithExt = vim.fn.expand('%:t')
     local filenameWithoutExt = vim.fn.expand('%:t:r')
     local folders = vim.split(vim.fn.expand('%:h'), '/')
@@ -126,7 +126,8 @@ local function jsFastLog(logmode, wrapIntoTrace)
         vim.cmd('undojoin')
         vim.cmd('normal 2o')
         local line = vim.fn.getcurpos()[2]
-        vim.api.nvim_buf_set_lines(0, line - 2, line, false, { 'console.trace()', 'console.groupEnd()' })
+        vim.api.nvim_buf_set_lines(0, line - 2, line, false, { 'console.trace()' .. colon, 'console.groupEnd()' .. colon })
+
         vim.cmd('normal =kk')
     end
 
